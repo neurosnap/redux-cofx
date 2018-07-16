@@ -1,0 +1,21 @@
+{
+  "name": "@neurosnap/react-fetcher",
+  "version": "1.0.5",
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc --noEmit && yarn tape",
+    "prepublish": "yarn build"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^10.5.2",
+    "cosed": "^1.1.8",
+    "redux": "^4.0.0",
+    "ts-jest": "^23.0.0",
+    "typescript": "^2.9.2",
+    "typings": "^2.1.1"
+  }
+}

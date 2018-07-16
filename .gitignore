@@ -1,0 +1,7 @@
+node_modules/
+*.swp
+*.log
+.DS_Store
+demo/bundle.js
+react-fetcher.js
+dist/
