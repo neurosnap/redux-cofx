@@ -1,20 +1,26 @@
 {
-  "name": "@neurosnap/react-fetcher",
-  "version": "1.0.5",
+  "name": "redux-cosed",
+  "description": "redux middleware; sagas for thunks",
+  "version": "1.0.0",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "license": "MIT",
   "scripts": {
     "build": "tsc",
     "test": "tsc --noEmit && yarn tape",
-    "prepublish": "yarn build"
+    "prepublish": "yarn build",
+    "tape": "tape -r ts-node/register test.ts"
   },
-  "dependencies": {},
+  "dependencies": {
+    "cosed": "^1.1.8",
+  },
   "devDependencies": {
     "@types/node": "^10.5.2",
-    "cosed": "^1.1.8",
+    "@types/tape": "^4.2.32",
     "redux": "^4.0.0",
+    "tape": "^4.9.1",
     "ts-jest": "^23.0.0",
+    "ts-node": "^7.0.0",
     "typescript": "^2.9.2",
     "typings": "^2.1.1"
   }

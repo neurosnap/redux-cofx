@@ -1,8 +1,14 @@
-import { factory, Effect, NextFn, call, spawn, all, delay } from 'cosed';
-import { Action, Dispatch } from 'redux';
+import { factory, call, spawn, all, delay, Effect, NextFn  } from 'cosed';
 
 export { call, spawn, delay, all };
 
+interface Action {
+  type: string;
+  [key: string]: any;
+}
+interface Dispatch {
+  <T extends Action>(action: T): T;
+}
 type Fn = (...args: any[]) => void;
 type GetState = () => void;
 
@@ -18,7 +24,7 @@ const error = (payload: any) => ({
 });
 
 export const EFFECT = '@@redux-cosed/EFFECT';
-interface CreateEffect {
+export interface CreateEffect {
   type: '@@redux-cosed/EFFECT';
   payload: { fn: Fn; args: any[] };
 }
@@ -78,7 +84,7 @@ function createMiddleware() {
     const task = factory(cosed);
 
     return (next: Dispatch) => (action: Action) => {
-      if (action.type !== EFFECT) {
+      if (!action || action.type !== EFFECT) {
         return next(action);
       }
 
