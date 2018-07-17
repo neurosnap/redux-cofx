@@ -40,6 +40,8 @@ So what do we have?  We have an upgrade path to start small (react-cosed), upgra
 to redux with simple side-effects (redux-cosed), and then upgrade to really complex
 flow mechanisms (redux-saga).
 
+`react-cosed` -> `redux-cosed` -> `redux-saga`
+
 ## Install
 
 ```bash
