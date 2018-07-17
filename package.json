@@ -12,7 +12,7 @@
     "tape": "tape -r ts-node/register test.ts"
   },
   "dependencies": {
-    "cosed": "^1.1.8",
+    "cosed": "^1.1.8"
   },
   "devDependencies": {
     "@types/node": "^10.5.2",
