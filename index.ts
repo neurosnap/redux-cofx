@@ -89,7 +89,10 @@ function createMiddleware() {
       }
 
       const { fn, args } = (<CreateEffect>action).payload;
-      return task(fn, ...args).catch((err: any) => dispatch(error(err)));
+      return task(fn, ...args).catch((err: any) => {
+        dispatch(error(err));
+        throw err;
+      });
     };
   };
 }
