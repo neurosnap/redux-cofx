@@ -1,4 +1,4 @@
-import { factory, call, spawn, all, delay, Effect, NextFn } from "cosed";
+import { factory, call, spawn, all, delay, Effect, NextFn } from 'cofx';
 
 export { call, spawn, delay, all };
 
@@ -17,28 +17,28 @@ interface Props {
   getState: GetState;
 }
 
-export type ERROR = "@@redux-cosed/ERROR";
+export type ERROR = '@@redux-cofx/ERROR';
 const error = (payload: any) => ({
-  type: "@@redux-cosed/ERROR",
-  payload
+  type: '@@redux-cofx/ERROR',
+  payload,
 });
 
-export const EFFECT = "@@redux-cosed/EFFECT";
+export const EFFECT = '@@redux-cofx/EFFECT';
 export interface CreateEffect {
-  type: "@@redux-cosed/EFFECT";
+  type: '@@redux-cofx/EFFECT';
   payload: { fn: Fn; args: any[] };
 }
 
 export const createEffect = (fn: Fn, ...args: any[]): CreateEffect => ({
   type: EFFECT,
-  payload: { fn, args }
+  payload: { fn, args },
 });
 
 const isObject = (val: any) => Object == val.constructor;
 const typeDetector = (type: string) => (value: any) =>
   value && isObject(value) && value.type === type;
 
-const PUT = "PUT";
+const PUT = 'PUT';
 export const put = (action: Action) => ({ type: PUT, action });
 const isPut = typeDetector(PUT);
 function putEffect({ action }: { action: Action }, dispatch: Dispatch) {
@@ -46,16 +46,16 @@ function putEffect({ action }: { action: Action }, dispatch: Dispatch) {
   return Promise.resolve();
 }
 
-const SELECT = "SELECT";
+const SELECT = 'SELECT';
 export const select = (fn: Fn, ...args: any[]) => ({
   type: SELECT,
   fn,
-  args
+  args,
 });
 const isSelect = typeDetector(SELECT);
 function selectEffect(
   { fn, args }: { fn: Fn; args: any[] },
-  getState: GetState
+  getState: GetState,
 ) {
   const state = getState();
   const result = fn(state, ...args);
@@ -69,7 +69,7 @@ function effectHandler(effect: Effect, dispatch: Dispatch, getState: GetState) {
   return effect;
 }
 
-function cosedMiddleware(dispatch: Dispatch, getState: GetState) {
+function cofxMiddleware(dispatch: Dispatch, getState: GetState) {
   return (next: NextFn) => {
     return (effect: Effect) => {
       const nextEffect = effectHandler(effect, dispatch, getState);
@@ -80,8 +80,8 @@ function cosedMiddleware(dispatch: Dispatch, getState: GetState) {
 
 export function createMiddleware(extraArg?: any) {
   return ({ dispatch, getState }: Props) => {
-    const cosed = cosedMiddleware(dispatch, getState);
-    const task = factory(cosed);
+    const cofx = cofxMiddleware(dispatch, getState);
+    const task = factory(cofx);
 
     return (next: Dispatch) => (action: Action) => {
       if (!action || action.type !== EFFECT) {

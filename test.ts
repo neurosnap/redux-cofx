@@ -1,24 +1,32 @@
 const test = require('tape');
 
-const lib = require('.');
-const cosedMiddleware = lib.default;
+const lib = require('./index');
+const cofxMiddleware = lib.default;
 const { createEffect } = lib;
 
 test('createMiddleware', (t: any) => {
   const doDispatch = () => {};
   const doGetState = () => {};
-  const nextHandler = cosedMiddleware({
+  const nextHandler = cofxMiddleware({
     dispatch: doDispatch,
     getState: doGetState,
   });
 
   t.plan(8);
 
-  t.equal(typeof nextHandler, 'function', 'must return a function to handle next');
+  t.equal(
+    typeof nextHandler,
+    'function',
+    'must return a function to handle next',
+  );
   t.equal(nextHandler.length, 1);
 
   let actionHandler = nextHandler();
-  t.equal(typeof actionHandler, 'function', 'must return a function to handle action');
+  t.equal(
+    typeof actionHandler,
+    'function',
+    'must return a function to handle action',
+  );
   t.equal(actionHandler.length, 1);
 
   actionHandler = nextHandler();
@@ -31,14 +39,22 @@ test('createMiddleware', (t: any) => {
 
   const actionObj = {};
   actionHandler = nextHandler((action: any) => {
-    t.deepEqual(action, actionObj, 'must pass action to next if not a function');
+    t.deepEqual(
+      action,
+      actionObj,
+      'must pass action to next if not a function',
+    );
   });
   actionHandler(actionObj);
 
   const expected = 'redux';
   actionHandler = nextHandler(() => expected);
   const outcome = actionHandler();
-  t.deepEqual(outcome, expected, 'must return the return value of next if not a function');
+  t.deepEqual(
+    outcome,
+    expected,
+    'must return the return value of next if not a function',
+  );
 });
 
 test('action promise error', (t: any) => {
@@ -46,13 +62,17 @@ test('action promise error', (t: any) => {
 
   const doDispatch = (actual: any) => {
     const expected = {
-      type: '@@redux-cosed/ERROR',
+      type: '@@redux-cofx/ERROR',
       payload: 'some error',
     };
-    t.deepEqual(actual, expected, 'must dispatch an error with correct message');
+    t.deepEqual(
+      actual,
+      expected,
+      'must dispatch an error with correct message',
+    );
   };
   const doGetState = () => {};
-  const nextHandler = cosedMiddleware({
+  const nextHandler = cofxMiddleware({
     dispatch: doDispatch,
     getState: doGetState,
   });
@@ -67,7 +87,7 @@ test('createEffect action', (t: any) => {
 
   const prom = () => {};
   const expected = {
-    type: '@@redux-cosed/EFFECT',
+    type: '@@redux-cofx/EFFECT',
     payload: { fn: prom, args: ['one', 'two'] },
   };
   const actual = createEffect(prom, 'one', 'two');

@@ -1,5 +1,5 @@
 {
-  "name": "redux-cosed",
+  "name": "redux-cofx",
   "description": "redux middleware; sagas for thunks",
   "version": "1.1.0",
   "main": "./dist/index.js",
@@ -9,19 +9,30 @@
     "build": "tsc",
     "test": "tsc --noEmit && yarn tape",
     "prepublish": "yarn build",
-    "tape": "tape -r ts-node/register test.ts"
+    "tape": "tape -r ts-node/register test.ts",
+    "precommit": "lint-staged",
+    "prettier": "prettier --write *.{js,ts}"
   },
   "dependencies": {
-    "cosed": "^1.1.8"
+    "cofx": "^1.1.9"
   },
   "devDependencies": {
     "@types/node": "^10.5.2",
     "@types/tape": "^4.2.32",
+    "husky": "^0.14.3",
+    "lint-staged": "7.1.2",
+    "prettier": "^1.14.2",
     "redux": "^4.0.0",
     "tape": "^4.9.1",
     "ts-jest": "^23.0.0",
     "ts-node": "^7.0.0",
     "typescript": "^2.9.2",
     "typings": "^2.1.1"
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "prettier --write",
+      "git add"
+    ]
   }
 }
