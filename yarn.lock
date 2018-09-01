@@ -379,9 +379,9 @@ code-point-at@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
 
-cofx@^1.1.10:
-  version "1.1.10"
-  resolved "https://registry.yarnpkg.com/cofx/-/cofx-1.1.10.tgz#cfa023498227e074999234e8fdb842087a408f8a"
+cofx@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/cofx/-/cofx-1.2.2.tgz#f923f158f6e1c38f1ec37a75b1eb9f48cc8faa94"
 
 collection-visit@^1.0.0:
   version "1.0.0"
