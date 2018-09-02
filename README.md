@@ -14,7 +14,7 @@ should look.
 - Like action creators spawning side-effects
 - Want to describe side-effects as data
 - Testing is incredibly simple
-- Same API as `redux-saga` (select, put, call, spawn, all, delay)
+- Same API as `redux-saga` (select, put, take, call, spawn, all, delay)
 - Typescript typings
 - Upgradability from [react-cofx](https://github.com/neurosnap/react-cofx) and [redux-saga](https://github.com/redux-saga/redux-saga)
 
@@ -91,3 +91,55 @@ store.dispatch(uploadTodos(todos));
 
 See [cofx](https://github.com/neurosnap/cofx#testing) for instructions on
 how to test an effect function.
+
+## API
+
+For `cofx` specific effects, see [cofx docs](https://github.com/neurosnap/cofx)
+
+### select
+
+Accepts a function with state as the parameter
+
+```js
+const getToken = (state) => {
+  return state.token;
+}
+
+function* effect() {
+  const token = yield select(getToken);
+}
+```
+
+### put
+
+alias for `store.dispatch`
+
+```js
+const setToken = (payload) => {
+  return {
+    type: 'SET_TOKEN',
+    payload,
+  }
+};
+
+function* effect() {
+  yield put(setToken('1234'));
+}
+```
+
+### take
+
+Waits for the action to be dispatched
+
+```js
+function* effect() {
+  const action = yield take('SOMETHING');
+  console.log(action.payload);
+}
+
+console.log('output ->');
+store.dispatch({ type: 'SOMETHING', payload: 'nice!' });
+
+// output ->
+// 'nice!'
+```

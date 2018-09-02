@@ -62,28 +62,97 @@ function selectEffect(
   return Promise.resolve(result);
 }
 
-function effectHandler(effect: Effect, dispatch: Dispatch, getState: GetState) {
+const TAKE = 'TAKE';
+export const take = (actionType: string) => ({
+  type: TAKE,
+  actionType,
+});
+const isTake = typeDetector(TAKE);
+function takeEffect(
+  { actionType }: { actionType: string },
+  emitter: EventEmitter,
+) {
+  return new Promise((resolve, reject) => {
+    const cb = (action: Action) => {
+      resolve(action);
+    };
+    emitter.sub(actionType, cb);
+  });
+}
+
+function effectHandler(
+  effect: Effect,
+  dispatch: Dispatch,
+  getState: GetState,
+  emitter: EventEmitter,
+) {
   const ctx = this;
   if (isPut(effect)) return putEffect.call(ctx, effect, dispatch);
   if (isSelect(effect)) return selectEffect.call(ctx, effect, getState);
+  if (isTake(effect)) return takeEffect.call(ctx, effect, emitter);
   return effect;
 }
 
-function cofxMiddleware(dispatch: Dispatch, getState: GetState) {
-  return (next: NextFn) => {
-    return (effect: Effect) => {
-      const nextEffect = effectHandler(effect, dispatch, getState);
-      return next(nextEffect);
-    };
+function cofxMiddleware(
+  dispatch: Dispatch,
+  getState: GetState,
+  emitter: EventEmitter,
+) {
+  return (next: NextFn) => (effect: Effect) => {
+    const nextEffect = effectHandler(effect, dispatch, getState, emitter);
+    return next(nextEffect);
   };
+}
+
+interface Events {
+  [key: string]: Fn[];
+}
+
+class EventEmitter {
+  listeners: Events = {};
+
+  constructor() {}
+
+  sub(actionType: string, fn: Fn) {
+    if (!this.has(actionType)) {
+      this.listeners[actionType] = [];
+    }
+
+    this.listeners[actionType].push(fn);
+  }
+
+  unsubType(actionType: string) {
+    if (!this.has(actionType)) {
+      return;
+    }
+    this.listeners[actionType] = [];
+  }
+
+  emit(actionType: string, data: any) {
+    if (!this.has(actionType)) {
+      return;
+    }
+
+    this.listeners[actionType].forEach((cb) => cb(data));
+    this.unsubType(actionType);
+  }
+
+  has(actionType: string) {
+    return this.listeners.hasOwnProperty(actionType);
+  }
 }
 
 export function createMiddleware(extraArg?: any) {
   return ({ dispatch, getState }: Props) => {
-    const cofx = cofxMiddleware(dispatch, getState);
+    const emitter = new EventEmitter();
+    const cofx = cofxMiddleware(dispatch, getState, emitter);
     const task = factory(cofx);
 
-    return (next: Dispatch) => (action: Action) => {
+    return (next?: Dispatch) => (action?: Action) => {
+      if (action && action.type && emitter.has(action.type)) {
+        emitter.emit(action.type, action);
+      }
+
       if (!action || action.type !== EFFECT) {
         return next(action);
       }

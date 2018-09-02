@@ -1,11 +1,10 @@
-const test = require('tape');
+import * as test from 'tape';
+import { createStore, applyMiddleware } from 'redux';
 
-const lib = require('./index');
-const cofxMiddleware = lib.default;
-const { createEffect } = lib;
+import cofxMiddleware, { createEffect, take } from './index';
 
-test('createMiddleware', (t: any) => {
-  const doDispatch = () => {};
+test('createMiddleware', (t) => {
+  const doDispatch: any = () => {};
   const doGetState = () => {};
   const nextHandler = cofxMiddleware({
     dispatch: doDispatch,
@@ -37,18 +36,20 @@ test('createMiddleware', (t: any) => {
   };
   actionHandler(createEffect(fn, expectedProps));
 
-  const actionObj = {};
-  actionHandler = nextHandler((action: any) => {
+  const actionObj = { type: '' };
+  const act: any = (action: any) => {
     t.deepEqual(
       action,
       actionObj,
       'must pass action to next if not a function',
     );
-  });
+  };
+  actionHandler = nextHandler(act);
   actionHandler(actionObj);
 
   const expected = 'redux';
-  actionHandler = nextHandler(() => expected);
+  const another: any = () => expected;
+  actionHandler = nextHandler(another);
   const outcome = actionHandler();
   t.deepEqual(
     outcome,
@@ -57,10 +58,10 @@ test('createMiddleware', (t: any) => {
   );
 });
 
-test('action promise error', (t: any) => {
+test('action promise error', (t) => {
   t.plan(1);
 
-  const doDispatch = (actual: any) => {
+  const doDispatch: any = (actual: any) => {
     const expected = {
       type: '@@redux-cofx/ERROR',
       payload: 'some error',
@@ -82,7 +83,7 @@ test('action promise error', (t: any) => {
   actionHandler(createEffect(prom));
 });
 
-test('createEffect action', (t: any) => {
+test('createEffect action', (t) => {
   t.plan(1);
 
   const prom = () => {};
@@ -92,4 +93,24 @@ test('createEffect action', (t: any) => {
   };
   const actual = createEffect(prom, 'one', 'two');
   t.deepEqual(actual, expected);
+});
+
+test('take effect', (t: test.Test) => {
+  t.plan(1);
+
+  const actionResult = { type: 'SOMETHING', payload: 'nice' };
+
+  function* effect() {
+    const action = yield take('SOMETHING');
+    t.deepEqual(action, actionResult);
+  }
+
+  const store = createStore(
+    (state: any) => state,
+    applyMiddleware(cofxMiddleware),
+  );
+  const doIt = () => createEffect(effect);
+  store.dispatch(doIt());
+  store.dispatch({ type: 'ANOTHER' });
+  store.dispatch(actionResult);
 });
