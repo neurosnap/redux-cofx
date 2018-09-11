@@ -143,3 +143,46 @@ store.dispatch({ type: 'SOMETHING', payload: 'nice!' });
 // output ->
 // 'nice!'
 ```
+
+### createEffect
+
+This function creates an effect action that you would dispatch with redux.
+
+```js
+import { put, createEffects } from 'redux-cofx';
+
+function* effOne(payload: any) {
+  // payload === 'ok'
+  yield put({ type: 'AWESOME', payload });
+}
+
+const one = (payload: any) => createEffect(effOne, payload);
+store.dispatch(one('ok'));
+```
+
+### createEffects
+
+This is a helper function to create effects based on a map of effect names to effect function.
+The created effects will accept a payload and send it as a parameter to the effect function.
+
+```js
+import { put, createEffects } from 'redux-cofx';
+
+function* effOne(payload: any) {
+  // payload === 'ok'
+  yield put({ type: 'AWESOME', payload });
+}
+
+function* effTwo(payload: any) {
+  // payload === 'nice'
+  yield put({ type: 'WOW', payload });
+}
+
+const effects = createEffects({
+  one: effOne,
+  two: effTwo,
+});
+
+store.dispatch(effects.one('ok'));
+store.dispatch(effects.two('nice'));
+```
