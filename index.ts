@@ -34,6 +34,21 @@ export const createEffect = (fn: Fn, ...args: any[]): CreateEffect => ({
   payload: { fn, args },
 });
 
+interface EffectMap {
+  [key: string]: Fn;
+}
+type EffectAction = (payload: any) => CreateEffect;
+export interface EffectActionMap {
+  [key: string]: EffectAction;
+}
+
+export const createEffects = (effectMap: EffectMap): EffectActionMap => {
+  return Object.keys(effectMap).reduce((acc: EffectActionMap, name: string) => {
+    acc[name] = (payload: any) => createEffect(effectMap[name], payload);
+    return acc;
+  }, {});
+};
+
 const isObject = (val: any) => Object == val.constructor;
 const typeDetector = (type: string) => (value: any) =>
   value && isObject(value) && value.type === type;

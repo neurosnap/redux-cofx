@@ -1,7 +1,12 @@
 import * as test from 'tape';
 import { createStore, applyMiddleware } from 'redux';
 
-import cofxMiddleware, { createEffect, take } from './index';
+import cofxMiddleware, {
+  createEffect,
+  take,
+  createEffects,
+  put,
+} from './index';
 
 test('createMiddleware', (t) => {
   const doDispatch: any = () => {};
@@ -113,4 +118,39 @@ test('take effect', (t: test.Test) => {
   store.dispatch(doIt());
   store.dispatch({ type: 'ANOTHER' });
   store.dispatch(actionResult);
+});
+
+test('create effects', (t: test.Test) => {
+  t.plan(1);
+
+  function* effOne(payload: any) {
+    yield put({ type: 'AWESOME', payload });
+  }
+
+  function* effTwo(payload: any) {
+    yield put({ type: 'WOW', payload });
+  }
+
+  const effects = createEffects({
+    one: effOne,
+    two: effTwo,
+  });
+
+  const reducer = (state: any, action: any) => {
+    if (action.type === 'AWESOME') {
+      return { ...state, awesome: action.payload };
+    }
+
+    if (action.type === 'WOW') {
+      return { ...state, wow: action.payload };
+    }
+
+    return state;
+  };
+  const store = createStore(reducer, applyMiddleware(cofxMiddleware));
+
+  store.dispatch(effects.one('ok'));
+  store.dispatch(effects.two('nice'));
+  const state = store.getState();
+  t.deepEqual(state, { awesome: 'ok', wow: 'nice' });
 });
