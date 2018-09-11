@@ -37,7 +37,7 @@ export const createEffect = (fn: Fn, ...args: any[]): CreateEffect => ({
 interface EffectMap {
   [key: string]: Fn;
 }
-type EffectAction = (payload: any) => CreateEffect;
+type EffectAction = (payload?: any) => CreateEffect;
 export interface EffectActionMap {
   [key: string]: EffectAction;
 }
