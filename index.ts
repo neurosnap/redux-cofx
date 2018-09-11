@@ -44,7 +44,7 @@ export interface EffectActionMap {
 
 export const createEffects = (effectMap: EffectMap): EffectActionMap => {
   return Object.keys(effectMap).reduce((acc: EffectActionMap, name: string) => {
-    acc[name] = (payload: any) => createEffect(effectMap[name], payload);
+    acc[name] = (payload?: any) => createEffect(effectMap[name], payload);
     return acc;
   }, {});
 };
