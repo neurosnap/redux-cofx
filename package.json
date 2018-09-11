@@ -5,6 +5,10 @@
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/neurosnap/redux-cofx.git"
+  },
   "scripts": {
     "build": "tsc",
     "test": "tsc --noEmit && yarn tape",

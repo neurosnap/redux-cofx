@@ -6,7 +6,7 @@ Middleware for `redux` that allows developers to dispatch actions which trigger
 generator functions. On top of that, these generator functions have an API
 for describing side-effect as opposed to activating them. Let `redux-cofx` handle
 the side-effects, all you need to worry about is describing how the side-effects
-should look.
+should work.
 
 ## Features
 
