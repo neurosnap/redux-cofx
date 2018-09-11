@@ -149,7 +149,7 @@ store.dispatch({ type: 'SOMETHING', payload: 'nice!' });
 This function creates an effect action that you would dispatch with redux.
 
 ```js
-import { put, createEffects } from 'redux-cofx';
+import { put, createEffect } from 'redux-cofx';
 
 function* effOne(payload: any) {
   // payload === 'ok'
