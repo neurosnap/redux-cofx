@@ -1,6 +1,6 @@
-import { factory, call, spawn, all, delay, Effect, NextFn } from 'cofx';
+import { factory, call, spawn, all, race, delay, Effect, NextFn } from 'cofx';
 
-export { call, spawn, delay, all };
+export { call, spawn, delay, all, race };
 
 interface Action {
   type: string;
