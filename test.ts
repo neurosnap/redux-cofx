@@ -6,6 +6,9 @@ import cofxMiddleware, {
   take,
   createEffects,
   put,
+  batch,
+  enableBatching,
+  select,
 } from './index';
 
 test('createMiddleware', (t) => {
@@ -100,6 +103,22 @@ test('createEffect action', (t) => {
   t.deepEqual(actual, expected);
 });
 
+test('createEffect action with object', (t) => {
+  t.plan(1);
+
+  const prom = () => {};
+  const expected = {
+    type: '@@redux-cofx/EFFECT',
+    payload: { fn: prom, args: ['one', 'two'], cancel: Promise.resolve() },
+  };
+  const actual = createEffect({
+    fn: prom,
+    args: ['one', 'two'],
+    cancel: Promise.resolve(),
+  });
+  t.deepEqual(actual, expected);
+});
+
 test('take effect', (t: test.Test) => {
   t.plan(1);
 
@@ -118,6 +137,23 @@ test('take effect', (t: test.Test) => {
   store.dispatch(doIt());
   store.dispatch({ type: 'ANOTHER' });
   store.dispatch(actionResult);
+});
+
+test('select effect', (t: test.Test) => {
+  t.plan(1);
+
+  function* effect() {
+    const action = yield select((state: any) => state);
+    t.deepEqual(action, 'hi there');
+  }
+
+  const store = createStore(
+    (state: any) => state,
+    'hi there' as any,
+    applyMiddleware(cofxMiddleware),
+  );
+  const doIt = () => createEffect(effect);
+  store.dispatch(doIt());
 });
 
 test('create effects', (t: test.Test) => {
@@ -151,6 +187,38 @@ test('create effects', (t: test.Test) => {
 
   store.dispatch(effects.one('ok'));
   store.dispatch(effects.two('nice'));
+  const state = store.getState();
+  t.deepEqual(state, { awesome: 'ok', wow: 'nice' });
+});
+
+test('batch effect', (t: test.Test) => {
+  t.plan(1);
+
+  function* eff(payload: any) {
+    yield batch([
+      { type: 'AWESOME', payload: payload[0] },
+      { type: 'WOW', payload: payload[1] },
+    ]);
+  }
+
+  const effect = (p: any) => createEffect(eff, p);
+
+  const reducer = (state: any, action: any) => {
+    if (action.type === 'AWESOME') {
+      return { ...state, awesome: action.payload };
+    }
+
+    if (action.type === 'WOW') {
+      return { ...state, wow: action.payload };
+    }
+
+    return state;
+  };
+
+  const rootReducer = enableBatching(reducer);
+  const store = createStore(rootReducer, applyMiddleware(cofxMiddleware));
+
+  store.dispatch(effect(['ok', 'nice']));
   const state = store.getState();
   t.deepEqual(state, { awesome: 'ok', wow: 'nice' });
 });

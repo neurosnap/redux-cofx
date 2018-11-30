@@ -1,6 +1,6 @@
 # redux-cofx [![Build Status](https://travis-ci.org/neurosnap/redux-cofx.svg?branch=master)](https://travis-ci.org/neurosnap/redux-cofx)
 
-Redux middleware: Sagas for thunks; `redux-saga` meets `redux-thunk`
+Redux middleware: Sagas as thunks; `redux-saga` meets `redux-thunk`
 
 Middleware for `redux` that allows developers to dispatch actions which trigger
 generator functions. On top of that, these generator functions have an API
@@ -10,13 +10,12 @@ should work.
 
 ## Features
 
-- Don't want the weight of `redux-saga` (forking model, task cancellation, spawning infinite loops, etc.)
-- Like action creators spawning side-effects
+- Action creators spawning side-effects
 - Want to describe side-effects as data
 - Testing is incredibly simple
-- Same API as `redux-saga` (select, put, take, call, spawn, all, delay)
-- Typescript typings
-- Upgradability from [react-cofx](https://github.com/neurosnap/react-cofx) and [redux-saga](https://github.com/redux-saga/redux-saga)
+- Similar API as `redux-saga` (select, put, take, call, fork, spawn, all, delay)
+- Typescript support
+- Upgradability from [react-cofx](https://github.com/neurosnap/react-cofx) and to [redux-saga](https://github.com/redux-saga/redux-saga)
 
 ## Upgrade plan
 
@@ -54,7 +53,8 @@ yarn add redux-cofx
 import cofxMiddleware, { createEffect, call, select, put } from "redux-cofx";
 import { applyMiddleware, createStore } from "redux";
 
-const store = createStore(reducers, applyMiddleware(cofxMiddleware));
+const reducer = (state) => state;
+const store = createStore(reducer, applyMiddleware(cofxMiddleware));
 
 // action creators
 const todosSuccess = payload => ({
@@ -87,6 +87,9 @@ const todos = ["drop kids off at the pool", "make dinner"];
 store.dispatch(uploadTodos(todos));
 ```
 
+Using `enableBatching` we also provide the ability to batch multiple actions
+while only triggering one state change.  See the API section for more info.
+
 ## Testing
 
 See [cofx](https://github.com/neurosnap/cofx#testing) for instructions on
@@ -94,7 +97,7 @@ how to test an effect function.
 
 ## API
 
-For `cofx` specific effects, see [cofx docs](https://github.com/neurosnap/cofx)
+For `cofx` specific effects (e.g. call, fork, spawn, delay, all), see [cofx docs](https://github.com/neurosnap/cofx)
 
 ### select
 
@@ -127,6 +130,36 @@ function* effect() {
 }
 ```
 
+### batch (requires enableBatching, added v2.0)
+
+dispatch multiple actions with only a single state update.
+This effect takes an array of actions and dispatches them all within a
+single state update.  This is useful if there are multiple actions being dispatched in sequence
+and you don't want to re-render the view all of those times.
+
+```js
+import { batch } from 'redux-cofx';
+
+const setToken = (payload) => {
+  return {
+    type: 'SET_TOKEN',
+    payload,
+  }
+};
+const login = () => {
+  return {
+    type: 'LOGIN',
+  };
+}
+
+function* effect() {
+  yield batch([
+    setToken('1234'),
+    login(),
+  ]); // this will only trigger one state update and only one re-render of react!
+}
+```
+
 ### take
 
 Waits for the action to be dispatched
@@ -144,6 +177,20 @@ store.dispatch({ type: 'SOMETHING', payload: 'nice!' });
 // 'nice!'
 ```
 
+## enableBatching (optional, added v2.0)
+
+This is a higher order reducer that enables the use of `batch` which
+allows multiple actions to be dispatched with a single re-render.
+
+```js
+import cofxMiddleware, { enabledBatching } from "redux-cofx";
+import { applyMiddleware, createStore } from "redux";
+
+const reducer = (state) => state;
+const rootReducer = enableBatching(reducer);
+const store = createStore(rootReducer, applyMiddleware(cofxMiddleware));
+```
+
 ### createEffect
 
 This function creates an effect action that you would dispatch with redux.
@@ -158,6 +205,33 @@ function* effOne(payload: any) {
 
 const one = (payload: any) => createEffect(effOne, payload);
 store.dispatch(one('ok'));
+```
+
+#### cancel an effect (added v2.0)
+
+We also provide the ability to cancel an effect.  The cancel *must* be a promise.
+When the cancel promise is `resolve`d then it will cancel the effect.
+
+```js
+import { put, createEffect } from 'redux-cofx';
+
+function* effOne(payload: any) {
+  yield delay(1000); // delay for 1 second
+  yield put({ type: 'AWESOME', payload }); // payload === 'ok'
+}
+
+const cancel = () => new Promise((resolve) => {
+  setTimeout(() => {
+    resolve();
+  }, 500);
+});
+const one = (payload: any) => createEffect({
+  fn: effOne,
+  args: [payload],
+  cancel,
+});
+store.dispatch(one('ok'));
+// the effect will be cancelled before the action can be dispatched!
 ```
 
 ### createEffects
