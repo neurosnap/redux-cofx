@@ -1,16 +1,38 @@
-import { factory, call, spawn, all, race, delay, Effect, NextFn } from 'cofx';
+import {
+  factory,
+  call,
+  fork,
+  spawn,
+  all,
+  race,
+  delay,
+  Effect,
+  NextFn,
+  typeDetector,
+} from 'cofx';
 
-export { call, spawn, delay, all, race };
+export { call, fork, spawn, delay, all, race };
 
-interface Action {
+interface Action<P = any> {
   type: string;
-  [key: string]: any;
+  payload?: P;
+  error?: boolean;
+  meta?: any;
 }
+
 interface Dispatch {
   <T extends Action>(action: T): T;
 }
+
+type Reducer<S> = (state: S, action: Action) => S;
 type Fn = (...args: any[]) => void;
 type GetState = () => void;
+
+interface EffectObj {
+  fn: Fn;
+  args?: any[];
+  cancel?: Promise<any>;
+}
 
 interface Props {
   dispatch: Dispatch;
@@ -26,13 +48,27 @@ const error = (payload: any) => ({
 export const EFFECT = '@@redux-cofx/EFFECT';
 export interface CreateEffect {
   type: '@@redux-cofx/EFFECT';
-  payload: { fn: Fn; args: any[] };
+  payload: { fn: Fn; args?: any[]; cancel?: Promise<any> };
 }
 
-export const createEffect = (fn: Fn, ...args: any[]): CreateEffect => ({
-  type: EFFECT,
-  payload: { fn, args },
-});
+export const createEffect = (
+  val: Fn | EffectObj,
+  ...args: any[]
+): CreateEffect => {
+  if (isObject(val)) {
+    const obj = val as EffectObj;
+    return {
+      type: EFFECT,
+      payload: { ...obj },
+    };
+  }
+
+  const fn = val as Fn;
+  return {
+    type: EFFECT,
+    payload: { fn, args },
+  };
+};
 
 interface EffectMap {
   [key: string]: Fn;
@@ -50,8 +86,20 @@ export const createEffects = (effectMap: EffectMap): EffectActionMap => {
 };
 
 const isObject = (val: any) => Object == val.constructor;
-const typeDetector = (type: string) => (value: any) =>
-  value && isObject(value) && value.type === type;
+
+const BATCH = '@@redux-cofx/BATCH';
+export const batch = (actions: Action[]) => ({
+  type: BATCH,
+  actions,
+});
+const isBatch = typeDetector(BATCH);
+function batchEffect({ actions }: { actions: Action[] }, dispatch: Dispatch) {
+  dispatch({
+    type: BATCH,
+    payload: actions,
+  });
+  return Promise.resolve();
+}
 
 const PUT = 'PUT';
 export const put = (action: Action) => ({ type: PUT, action });
@@ -103,6 +151,7 @@ function effectHandler(
 ) {
   const ctx = this;
   if (isPut(effect)) return putEffect.call(ctx, effect, dispatch);
+  if (isBatch(effect)) return batchEffect.call(ctx, effect, dispatch);
   if (isSelect(effect)) return selectEffect.call(ctx, effect, getState);
   if (isTake(effect)) return takeEffect.call(ctx, effect, emitter);
   return effect;
@@ -172,12 +221,24 @@ export function createMiddleware(extraArg?: any) {
         return next(action);
       }
 
-      const { fn, args } = (<CreateEffect>action).payload;
-      return task(fn, ...args, extraArg).catch((err: any) => {
-        dispatch(error(err));
-        throw err;
-      });
+      const { fn, args = [], cancel } = (<CreateEffect>action).payload;
+      return task({ fn, args: [...args, extraArg], cancel }).catch(
+        (err: any) => {
+          dispatch(error(err));
+          throw err;
+        },
+      );
     };
+  };
+}
+
+export function enableBatching<S>(reducer: Reducer<S>) {
+  return (state: S, action: Action) => {
+    if (action.type === BATCH) {
+      return action.payload.reduce(reducer, state);
+    }
+
+    return reducer(state, action);
   };
 }
 
