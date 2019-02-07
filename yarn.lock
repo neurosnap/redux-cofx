@@ -448,10 +448,10 @@ code-point-at@^1.0.0:
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
   integrity sha1-DQcLTQQ6W+ozovGkDi7bPZpMz3c=
 
-cofx@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/cofx/-/cofx-2.0.0.tgz#1bc4b8ab87d86be1b59e3cc6580289ccb3c0dff3"
-  integrity sha512-AuFDS9Fff5PZ8ONwmvD58MR2bItgBJUs9UvlEC61Blc+eW68Ct8XuDyCjdxB7iLIDEqPbVkufQSsCixZwpuXvA==
+cofx@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/cofx/-/cofx-2.1.0.tgz#a48cd02b3b95c6553b9c588cf15be26e564650e4"
+  integrity sha512-j7AS1VPTp3YusM6A+mIkLv9So0WXYJg6Yj9QT3Y8KTVqdl1a6graQC8Proor+O/3G1LdsGdKYqg5TEsW4e+CxA==
 
 collection-visit@^1.0.0:
   version "1.0.0"
