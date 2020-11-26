@@ -109,12 +109,24 @@ function putEffect({ action }: { action: Action }, dispatch: Dispatch) {
   return Promise.resolve();
 }
 
+export type Tail<L extends any[]> = ((...l: L) => any) extends ((
+  h: any,
+  ...t: infer T
+) => any)
+  ? T
+  : never;
+
 const SELECT = 'SELECT';
-export const select = (fn: Fn, ...args: any[]) => ({
-  type: SELECT,
-  fn,
-  args,
-});
+export function select<Fn extends (...args: any[]) => any>(
+  fn: Fn,
+  ...args: Tail<Parameters<Fn>>
+) {
+  return {
+    type: SELECT,
+    fn,
+    args,
+  };
+}
 const isSelect = typeDetector(SELECT);
 function selectEffect(
   { fn, args }: { fn: Fn; args: any[] },

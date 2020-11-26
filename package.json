@@ -28,10 +28,8 @@
     "prettier": "^1.14.2",
     "redux": "^4.0.0",
     "tape": "^4.9.1",
-    "ts-jest": "^23.0.0",
     "ts-node": "^7.0.0",
-    "typescript": "^3.1.4",
-    "typings": "^2.1.1"
+    "typescript": "^3.1.4"
   },
   "lint-staged": {
     "*.{ts,js}": [
