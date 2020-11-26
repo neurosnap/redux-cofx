@@ -144,12 +144,32 @@ test('select effect', (t: test.Test) => {
 
   function* effect() {
     const action = yield select((state: any) => state);
-    t.deepEqual(action, 'hi there');
+    t.equal(action, 'hi there');
   }
 
   const store = createStore(
     (state: any) => state,
     'hi there' as any,
+    applyMiddleware(cofxMiddleware),
+  );
+  const doIt = () => createEffect(effect);
+  store.dispatch(doIt());
+});
+
+test('select effect with props', (t: test.Test) => {
+  t.plan(1);
+
+  function* effect() {
+    const selector = (state: any, props: { id: string }) => state[props.id];
+    const action = yield select(selector, {
+      id: '1',
+    });
+    t.equal(action, 'yo there');
+  }
+
+  const store = createStore(
+    (state: any) => state,
+    { '1': 'yo there' } as any,
     applyMiddleware(cofxMiddleware),
   );
   const doIt = () => createEffect(effect);
