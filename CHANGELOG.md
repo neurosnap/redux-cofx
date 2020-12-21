@@ -1,3 +1,7 @@
+## v2.3.2 (12-21-2020)
+
+- :wrench: export BATCH and BATCH_ACTIONS types
+
 ## v2.3.1 (12-21-2020)
 
 - :wrench: better typing for `createEffects`

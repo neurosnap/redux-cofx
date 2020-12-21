@@ -115,7 +115,7 @@ export function createEffects<Actions extends ActionsAny>(
 
 const isObject = (val: any) => Object == val.constructor;
 
-const BATCH = '@@redux-cofx/BATCH';
+export const BATCH = '@@redux-cofx/BATCH';
 export const batch = (actions: Action[]) => ({
   type: BATCH,
   actions,
@@ -139,7 +139,7 @@ function batchEffect({ actions }: { actions: Action[] }, dispatch: Dispatch) {
   return Promise.resolve();
 }
 
-const BATCH_ACTIONS = '@@redux-cofx/BATCH_ACTIONS';
+export const BATCH_ACTIONS = '@@redux-cofx/BATCH_ACTIONS';
 export const batchActions = (payload: Action[]) => ({
   type: BATCH_ACTIONS,
   payload,
