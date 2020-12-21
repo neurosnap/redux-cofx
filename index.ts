@@ -213,7 +213,7 @@ function effectHandler(
   return effect;
 }
 
-function cofxMiddleware(
+export function cofxMiddleware(
   dispatch: Dispatch,
   getState: GetState,
   emitter: EventEmitter,
@@ -263,8 +263,9 @@ class EventEmitter {
 }
 
 export function createMiddleware(extraArg?: any) {
-  return ({ dispatch, getState }: Props) => {
-    const emitter = new EventEmitter();
+  const emitter = new EventEmitter();
+
+  const middleware = ({ dispatch, getState }: Props) => {
     const cofx = cofxMiddleware(dispatch, getState, emitter);
     const task = factory(cofx);
 
@@ -286,6 +287,8 @@ export function createMiddleware(extraArg?: any) {
       );
     };
   };
+
+  return { emitter, middleware };
 }
 
 export function enableBatching<S>(reducer: Reducer<S>) {
@@ -298,4 +301,4 @@ export function enableBatching<S>(reducer: Reducer<S>) {
   };
 }
 
-export default createMiddleware();
+export default createMiddleware().middleware;

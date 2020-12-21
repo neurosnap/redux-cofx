@@ -1,3 +1,7 @@
+## v2.4.0 (12-21-2020)
+
+- :wrench: changed the internal structure of `createMiddleware` to return the emitter and middleware
+
 ## v2.3.2 (12-21-2020)
 
 - :wrench: export BATCH and BATCH_ACTIONS types
