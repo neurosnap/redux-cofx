@@ -180,11 +180,11 @@ test('select effect with props', (t: test.Test) => {
 test('create effects', (t: test.Test) => {
   t.plan(1);
 
-  function* effOne(payload: any) {
+  function* effOne(payload: string) {
     yield put({ type: 'AWESOME', payload });
   }
 
-  function* effTwo(payload: any) {
+  function* effTwo(payload: number) {
     yield put({ type: 'WOW', payload });
   }
 
@@ -207,9 +207,9 @@ test('create effects', (t: test.Test) => {
   const store = createStore(reducer, applyMiddleware(cofxMiddleware));
 
   store.dispatch(effects.one('ok'));
-  store.dispatch(effects.two('nice'));
+  store.dispatch(effects.two(1));
   const state = store.getState();
-  t.deepEqual(state, { awesome: 'ok', wow: 'nice' });
+  t.deepEqual(state, { awesome: 'ok', wow: 1 });
 });
 
 test('batch effect', (t: test.Test) => {

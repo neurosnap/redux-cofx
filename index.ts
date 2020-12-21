@@ -20,6 +20,10 @@ interface Action<P = any> {
   meta?: any;
 }
 
+interface ActionsAny<P = any> {
+  [key: string]: P;
+}
+
 interface Dispatch {
   <T extends Action>(action: T): T;
 }
@@ -70,20 +74,44 @@ export const createEffect = (
   };
 };
 
-interface EffectMap {
-  [key: string]: Fn;
-}
-type EffectAction = (payload?: any) => CreateEffect;
-export interface EffectActionMap {
-  [key: string]: EffectAction;
-}
+/**
+ * Function that will create a bunch of effects based on the mapping provided.
+ * The key of the object are the names of the actions and the values are the generator
+ * functions that should be called.
+ * See examples below
+ *
+ * @example
+ * const { fetchTicket, fetchUser } = createEffects({
+ *   fetchTicket: onFetchTicket,
+ *   fetchUser: onFetchUser,
+ * });
+ *
+ * store.dispatch(fetchTicket());
+ */
+export function createEffects<Actions extends ActionsAny>(
+  fx: {
+    [key in keyof Actions]: Record<string, any> extends Actions[key] // ensures payload isn't inferred as {}
+      ? () => Generator<any, any, any>
+      : Actions[key] extends never
+        ? () => Generator<any, any, any>
+        : (payload: Actions[key]) => Generator<any, any, any>
+  },
+) {
+  const actions: {
+    [key in keyof Actions]: Record<string, any> extends Actions[key] // ensures payload isn't inferred as {}
+      ? () => Action
+      : Actions[key] extends never
+        ? () => Action
+        : (payload: Actions[key]) => Action<Actions[key]>
+  } = {} as any;
 
-export const createEffects = (effectMap: EffectMap): EffectActionMap => {
-  return Object.keys(effectMap).reduce((acc: EffectActionMap, name: string) => {
-    acc[name] = (payload?: any) => createEffect(effectMap[name], payload);
-    return acc;
-  }, {});
-};
+  Object.keys(fx).forEach((actionType) => {
+    const action = (payload?: any) => createEffect(fx[actionType], payload);
+    (actions as any)[actionType] = action;
+  });
+
+  return actions;
+}
 
 const isObject = (val: any) => Object == val.constructor;
 
