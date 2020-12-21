@@ -1,7 +1,7 @@
 {
   "name": "redux-cofx",
   "description": "redux middleware; sagas as thunks",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "license": "MIT",
