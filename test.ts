@@ -9,6 +9,7 @@ import cofxMiddleware, {
   batch,
   enableBatching,
   select,
+  batchActions,
 } from './index';
 
 test('createMiddleware', (t) => {
@@ -241,4 +242,97 @@ test('batch effect', (t: test.Test) => {
   store.dispatch(effect(['ok', 'nice']));
   const state = store.getState();
   t.deepEqual(state, { awesome: 'ok', wow: 'nice' });
+});
+
+test('batch actions with normal store', (t: test.Test) => {
+  t.plan(1);
+
+  const reducer = (state: any, action: any) => {
+    if (action.type === 'AWESOME') {
+      return { ...state, awesome: action.payload };
+    }
+
+    if (action.type === 'WOW') {
+      return { ...state, wow: action.payload };
+    }
+
+    return state;
+  };
+
+  const rootReducer = enableBatching(reducer);
+  const store = createStore(rootReducer, applyMiddleware(cofxMiddleware));
+
+  store.dispatch(
+    batchActions([
+      { type: 'AWESOME', payload: 'ok' },
+      { type: 'WOW', payload: 'nice' },
+    ]),
+  );
+  const state = store.getState();
+  t.deepEqual(state, { awesome: 'ok', wow: 'nice' });
+});
+
+test('call an effect inside an effect', (t: test.Test) => {
+  t.plan(1);
+
+  function* otherEff() {
+    yield put({ type: 'WOW', payload: 'get it' });
+  }
+  const otherEffect = () => createEffect(otherEff);
+  function* eff() {
+    yield put(otherEffect());
+  }
+  const effect = () => createEffect(eff);
+  const reducer = (state: any, action: any) => {
+    if (action.type === 'WOW') {
+      return { ...state, wow: action.payload };
+    }
+
+    return state;
+  };
+
+  const rootReducer = enableBatching(reducer);
+  const store = createStore(rootReducer, applyMiddleware(cofxMiddleware));
+
+  store.dispatch(effect());
+  const state = store.getState();
+  t.deepEqual(state, { wow: 'get it' });
+});
+
+test('batch effect should activate other effects', (t: test.Test) => {
+  t.plan(1);
+
+  function* otherEff() {
+    yield put({ type: 'WOW', payload: 'get it' });
+  }
+  const otherEffect = () => createEffect(otherEff);
+
+  function* eff(payload: any) {
+    yield batch([
+      { type: 'AWESOME', payload: payload[0] },
+      { type: 'WOW', payload: payload[1] },
+      otherEffect(),
+    ]);
+  }
+
+  const effect = (p: any) => createEffect(eff, p);
+
+  const reducer = (state: any, action: any) => {
+    if (action.type === 'AWESOME') {
+      return { ...state, awesome: action.payload };
+    }
+
+    if (action.type === 'WOW') {
+      return { ...state, wow: action.payload };
+    }
+
+    return state;
+  };
+
+  const rootReducer = enableBatching(reducer);
+  const store = createStore(rootReducer, applyMiddleware(cofxMiddleware));
+
+  store.dispatch(effect(['ok', 'nice']));
+  const state = store.getState();
+  t.deepEqual(state, { awesome: 'ok', wow: 'get it' });
 });

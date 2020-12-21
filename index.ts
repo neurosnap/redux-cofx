@@ -94,12 +94,28 @@ export const batch = (actions: Action[]) => ({
 });
 const isBatch = typeDetector(BATCH);
 function batchEffect({ actions }: { actions: Action[] }, dispatch: Dispatch) {
+  const normalActions = actions.filter(
+    (action) => !action || action.type !== EFFECT,
+  );
   dispatch({
     type: BATCH,
-    payload: actions,
+    payload: normalActions,
+  });
+
+  const effectActions = actions.filter(
+    (action) => action && action.type === EFFECT,
+  );
+  effectActions.forEach((action) => {
+    dispatch(action);
   });
   return Promise.resolve();
 }
+
+const BATCH_ACTIONS = '@@redux-cofx/BATCH_ACTIONS';
+export const batchActions = (payload: Action[]) => ({
+  type: BATCH_ACTIONS,
+  payload,
+});
 
 const PUT = 'PUT';
 export const put = (action: Action) => ({ type: PUT, action });
@@ -246,7 +262,7 @@ export function createMiddleware(extraArg?: any) {
 
 export function enableBatching<S>(reducer: Reducer<S>) {
   return (state: S, action: Action) => {
-    if (action.type === BATCH) {
+    if (action.type === BATCH || action.type === BATCH_ACTIONS) {
       return action.payload.reduce(reducer, state);
     }
 

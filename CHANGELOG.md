@@ -1,3 +1,8 @@
+## v2.3.0 (12-21-2020)
+
+- :bug: calling `batch` with an effect inside of it did not call the effect.
+- :sparkes: new action `batchActions` that lets people dispatch a batch of actions: `store.dispatch(batchActions([...]))`
+
 ## v2.2.0 (11-26-2020)
 
 - :wrench: better typing for `select`
