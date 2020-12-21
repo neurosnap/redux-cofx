@@ -1,3 +1,7 @@
+## v2.3.1 (12-21-2020)
+
+- :wrench: better typing for `createEffects`
+
 ## v2.3.0 (12-21-2020)
 
 - :bug: calling `batch` with an effect inside of it did not call the effect.
