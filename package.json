@@ -1,7 +1,7 @@
 {
   "name": "redux-cofx",
   "description": "redux middleware; sagas as thunks",
-  "version": "2.4.0",
+  "version": "0.0.0",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "license": "MIT",
@@ -29,7 +29,7 @@
     "redux": "^4.0.0",
     "tape": "^5.0.1",
     "ts-node": "^9.1.1",
-    "typescript": "^4.1.3"
+    "typescript": "^4.3.5"
   },
   "lint-staged": {
     "*.{ts,js}": [

@@ -1,4 +1,6 @@
-# redux-cofx [![Build Status](https://travis-ci.org/neurosnap/redux-cofx.svg?branch=master)](https://travis-ci.org/neurosnap/redux-cofx)
+# redux-cofx 
+
+[![ci](https://github.com/neurosnap/redux-cofx/actions/workflows/test.yml/badge.svg)](https://github.com/neurosnap/redux-cofx/actions/workflows/test.yml)
 
 Redux middleware: Sagas as thunks; `redux-saga` meets `redux-thunk`
 
