@@ -126,7 +126,7 @@ test('take effect', (t: test.Test) => {
 
   const actionResult = { type: 'SOMETHING', payload: 'nice' };
 
-  function* effect() {
+  function* effect(): any {
     const action = yield take('SOMETHING');
     t.deepEqual(action, actionResult);
   }
@@ -146,7 +146,7 @@ test('store effect', (t: test.Test) => {
 
   const initState = { do: 'it' };
 
-  function* effect() {
+  function* effect(): any {
     const curStore = yield cofxStore();
     t.deepEqual(curStore.getState(), initState);
   }
@@ -163,7 +163,7 @@ test('store effect', (t: test.Test) => {
 test('select effect', (t: test.Test) => {
   t.plan(1);
 
-  function* effect() {
+  function* effect(): any {
     const action = yield select((state: any) => state);
     t.equal(action, 'hi there');
   }
@@ -180,7 +180,7 @@ test('select effect', (t: test.Test) => {
 test('select effect with props', (t: test.Test) => {
   t.plan(1);
 
-  function* effect() {
+  function* effect(): any {
     const selector = (state: any, props: { id: string }) => state[props.id];
     const action = yield select(selector, {
       id: '1',
