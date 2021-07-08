@@ -191,12 +191,21 @@ function takeEffect(
   { actionType }: { actionType: string },
   emitter: EventEmitter,
 ) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const cb = (action: Action) => {
       resolve(action);
     };
     emitter.sub(actionType, cb);
   });
+}
+
+const STORE = 'STORE';
+export const store = () => ({
+  type: STORE,
+});
+const isStore = typeDetector(STORE);
+function storeEffect(store: Props) {
+  return Promise.resolve(store);
 }
 
 function effectHandler(
@@ -210,6 +219,7 @@ function effectHandler(
   if (isBatch(effect)) return batchEffect.call(ctx, effect, dispatch);
   if (isSelect(effect)) return selectEffect.call(ctx, effect, getState);
   if (isTake(effect)) return takeEffect.call(ctx, effect, emitter);
+  if (isStore(effect)) return storeEffect.call(ctx, { dispatch, getState });
   return effect;
 }
 

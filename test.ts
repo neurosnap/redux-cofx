@@ -10,6 +10,7 @@ import cofxMiddleware, {
   enableBatching,
   select,
   batchActions,
+  store as cofxStore,
 } from './index';
 
 test('createMiddleware', (t) => {
@@ -138,6 +139,25 @@ test('take effect', (t: test.Test) => {
   store.dispatch(doIt());
   store.dispatch({ type: 'ANOTHER' });
   store.dispatch(actionResult);
+});
+
+test('store effect', (t: test.Test) => {
+  t.plan(1);
+
+  const initState = { do: 'it' };
+
+  function* effect() {
+    const curStore = yield cofxStore();
+    t.deepEqual(curStore.getState(), initState);
+  }
+
+  const store = createStore(
+    (state: any) => state,
+    initState as any,
+    applyMiddleware(cofxMiddleware),
+  );
+  const doIt = () => createEffect(effect);
+  store.dispatch(doIt());
 });
 
 test('select effect', (t: test.Test) => {
