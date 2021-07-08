@@ -1,3 +1,5 @@
+**DEPRECATED: Please see [github releases](https://github.com/neurosnap/redux-cofx/releases) to a changelog**
+
 ## v2.4.0 (12-21-2020)
 
 - :wrench: changed the internal structure of `createMiddleware` to return the emitter and middleware
